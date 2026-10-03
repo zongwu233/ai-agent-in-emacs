@@ -17,4 +17,9 @@
 
 (setq gptel-confirm-tool-calls nil)
 
+(load (expand-file-name "test-init-ai.el"
+                        (file-name-directory (or load-file-name
+                                                 default-directory)))
+      nil t)
+
 (ert-run-tests-batch-and-exit t)

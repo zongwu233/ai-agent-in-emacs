@@ -107,7 +107,10 @@
     (my/gptel-setup-display)
     (should visual-line-mode)
     (should-not truncate-lines)
-    (should-not visual-fill-column-width)))
+    ;; visual-fill-column is not part of this module; when absent the variable
+    ;; stays unbound and there is nothing to reset.
+    (when (boundp 'visual-fill-column-width)
+      (should-not visual-fill-column-width))))
 
 (ert-deftest ai/open-session-restores-native-properties-and-styles ()
   (let* ((my/gptel-session-directory (make-temp-file "gptel-sessions-" t))
