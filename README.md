@@ -45,7 +45,34 @@ installs missing packages on first load.
 ## Providers and authinfo
 
 The stock registry ships a single public provider (`zhipu`, key from
-`ZHIPUAI_API_KEY`). Add your own providers **before** `(require 'init-ai-agent)`:
+`ZHIPUAI_API_KEY`). All other providers are declared directly in
+`~/.authinfo` — hosts, logins, API keys **and model lists** never appear
+in any config file.
+
+Add the netrc fields `provider`, `models`, `dmodel` and `transport` to an
+authinfo line:
+
+```
+machine api.example-relay.com login my-username password sk-... \
+    provider my-relay dmodel model-a models "model-a model-b model-c"
+machine localhost:9000 login local-me password sk-local \
+    provider local transport http models "my-local-model"
+```
+
+| Field | Meaning |
+|-------|---------|
+| `provider` | provider name (required; turns the entry into a registry entry) |
+| `models` | model symbols offered in the menu; keep it **last** on the line |
+| `dmodel` | preselected default model |
+| `transport` | `http` for local servers (default `https`) |
+
+The `machine` field is the API base_url host, `login` selects the entry
+and `password` is the API key; endpoints default to
+`/v1/chat/completions`. After editing authinfo, run `M-x
+my/ai-load-authinfo-providers` to (re)load them.
+
+Alternatively, declare entries in elisp **before**
+`(require 'init-ai-agent)`:
 
 ```emacs-lisp
 (setq my/ai-providers
@@ -54,16 +81,7 @@ The stock registry ships a single public provider (`zhipu`, key from
                  :host "api.example-relay.com"   ; machine   field of ~/.authinfo
                  :login "my-username"            ; login     field of ~/.authinfo
                  :models (model-a model-b)
-                 :default model-a)
-                (local
-                 :host "localhost:9000" :login "local-me" :protocol "http"
-                 :models (my-local-model) :default my-local-model))))
-```
-
-The key is the `password` field of the matching `~/.authinfo` entry:
-
-```
-machine api.example-relay.com login my-username password sk-...
+                 :default model-a))))
 ```
 
 Per-entry options:

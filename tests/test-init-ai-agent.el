@@ -5,9 +5,12 @@
 (require 'gptel)
 (require 'minuet nil t)
 
+(defvar ai/stock-providers my/ai-providers
+  "Stock registry snapshot taken at test load time, before any mutation.")
+
 (defun ai/restore-stock-registry ()
   "Reinstall the stock registry and backends after a test mutates them."
-  (setq my/ai-providers (default-value 'my/ai-providers))
+  (setq my/ai-providers (copy-sequence ai/stock-providers))
   (my/ai-build-backends)
   (setq-default gptel-backend (my/ai-backend 'zhipu)
                 gptel-model (my/ai-provider-default-model 'zhipu)))
@@ -51,6 +54,34 @@
         (should (eq (my/ai-provider-default-model 'plain) 'plain-a))
         (should (equal (gptel-backend-protocol (my/ai-backend 'local)) "http")))
     (ai/restore-stock-registry)))
+
+(ert-deftest ai/authinfo-provider-loading ()
+  ;; ~/.authinfo entries carrying a `provider' field become registry entries:
+  ;; machine -> :host, login -> :login, password -> API key, plus the
+  ;; models/dmodel/transport netrc fields. Reloading is idempotent.
+  (let* ((netrc (make-temp-file "authinfo-prov-" nil ".netrc"
+                                (concat "machine relay.test login u1 password p1"
+                                        " provider foo dmodel foo-2 transport http"
+                                        " models \"foo-1 foo-2\"\n"
+                                        "machine plain.test login u2 password p2"
+                                        " provider baz models \"baz-1\"\n")))
+         (auth-sources (list netrc)))
+    (unwind-protect
+        (progn
+          (should (= (my/ai-load-authinfo-providers) 2))
+          (should (equal (gptel-backend-host (my/ai-backend 'foo)) "relay.test"))
+          (should (equal (gptel-backend-protocol (my/ai-backend 'foo)) "http"))
+          (should (equal (gptel-backend-models (my/ai-backend 'foo)) '(foo-1 foo-2)))
+          (should (eq (my/ai-provider-default-model 'foo) 'foo-2))
+          (should (equal (my/ai-provider-key (my/ai-provider-spec 'foo)) "p1"))
+          (should (equal (gptel-backend-endpoint (my/ai-backend 'baz))
+                         "/v1/chat/completions"))
+          ;; Reload replaces instead of duplicating.
+          (should (= (my/ai-load-authinfo-providers) 2))
+          (should (= (length my/ai-providers)
+                     (+ (length ai/stock-providers) 2))))
+      (ai/restore-stock-registry)
+      (delete-file netrc))))
 
 (ert-deftest ai/key-resolution-env-wins-then-authinfo ()
   ;; env-var provider (zhipu)

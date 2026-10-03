@@ -103,6 +103,42 @@ single backend type covers them all."
        my/ai-backends)))
   (setq my/ai-backends (nreverse my/ai-backends)))
 
+(defun my/ai-load-authinfo-providers ()
+  "Extend `my/ai-providers' with ~/.authinfo entries declaring a provider.
+An authinfo line may carry extra netrc fields, which auth-source keeps:
+
+  provider NAME       declare provider NAME for this entry (required)
+  models \"m1 m2\"    model symbols offered in the menu (keep last on line)
+  dmodel MODEL        preselected default model
+  transport http      for local http servers (default https)
+
+The machine field is the :host, login the :login and password the API
+key.  Endpoints default to /v1/chat/completions.  Entries already in
+`my/ai-providers' under the same name are replaced and backends are
+rebuilt.  Return the number of authinfo providers."
+  (interactive)
+  (require 'auth-source)
+  (let ((new nil))
+    (dolist (entry (auth-source-search :max 500))
+      (when-let ((name (plist-get entry :provider)))
+        (push `(,(intern name)
+                :host ,(plist-get entry :host)
+                :login ,(plist-get entry :user)
+                ,@(when-let ((models (plist-get entry :models)))
+                    (list :models (mapcar #'intern (split-string models))))
+                ,@(when-let ((dmodel (plist-get entry :dmodel)))
+                    (list :default (intern dmodel)))
+                ,@(when-let ((transport (plist-get entry :transport)))
+                    (list :protocol transport)))
+              new)))
+    (setq new (nreverse new))
+    (dolist (entry new)
+      (setq my/ai-providers (assq-delete-all (car entry) my/ai-providers)))
+    (setq my/ai-providers (append my/ai-providers new))
+    (my/ai-build-backends)
+    (message "init-ai-agent: %d provider(s) loaded from authinfo" (length new))
+    (length new)))
+
 (defun my/ai-check-keys ()
   "Report providers whose API key cannot be resolved."
   (let ((missing (cl-loop for (name . spec) in my/ai-providers
