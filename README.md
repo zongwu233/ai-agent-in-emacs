@@ -29,15 +29,18 @@ and [minuet](https://github.com/milanglacier/minuet-ai.el).
 ## Installation
 
 ```bash
-git clone https://github.com/zongwu233/ai-agent-in-emacs.git ~/project/ai-agent-in-emacs
+git clone https://github.com/zongwu233/ai-agent-in-emacs.git ~/.emacs.d/site-lisp/ai-agent-in-emacs
 ```
 
 ```emacs-lisp
-(add-to-list 'load-path (expand-file-name "~/project/ai-agent-in-emacs/"))
+(add-to-list 'load-path (expand-file-name "site-lisp/ai-agent-in-emacs"
+                                          user-emacs-directory))
 (require 'init-ai)
 ```
 
-`use-package :ensure` installs missing packages on first load.
+[zongwu233/emacs.d](https://github.com/zongwu233/emacs.d) clones this repo
+automatically (shallow) into `site-lisp/` on first load. `use-package :ensure`
+installs missing packages on first load.
 
 ## Providers and authinfo
 
