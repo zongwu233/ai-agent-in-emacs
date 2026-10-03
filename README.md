@@ -35,7 +35,7 @@ git clone https://github.com/zongwu233/ai-agent-in-emacs.git ~/.emacs.d/site-lis
 ```emacs-lisp
 (add-to-list 'load-path (expand-file-name "site-lisp/ai-agent-in-emacs"
                                           user-emacs-directory))
-(require 'init-ai)
+(require 'init-ai-agent)
 ```
 
 [zongwu233/emacs.d](https://github.com/zongwu233/emacs.d) clones this repo
@@ -45,7 +45,7 @@ installs missing packages on first load.
 ## Providers and authinfo
 
 The stock registry ships a single public provider (`zhipu`, key from
-`ZHIPUAI_API_KEY`). Add your own providers **before** `(require 'init-ai)`:
+`ZHIPUAI_API_KEY`). Add your own providers **before** `(require 'init-ai-agent)`:
 
 ```emacs-lisp
 (setq my/ai-providers

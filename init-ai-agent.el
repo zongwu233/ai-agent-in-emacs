@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8; lexical-binding: t; -*-
-;;; init-ai.el --- AI coding features (gptel) -*- lexical-binding: t; -*-
+;;; init-ai-agent.el --- AI coding features (gptel) -*- lexical-binding: t; -*-
 
 ;; gptel + gptel-agent + gptel-preset-collection + minuet, packaged as a
 ;; standalone Emacs module.
@@ -109,7 +109,7 @@ single backend type covers them all."
                           unless (my/ai-provider-key spec)
                           collect name)))
     (when missing
-      (message "init-ai: no API key resolved for: %s"
+      (message "init-ai-agent: no API key resolved for: %s"
                (mapconcat #'symbol-name missing ", ")))))
 
 (defun my/ai-select-provider (provider)
@@ -132,7 +132,7 @@ Affects new gptel sessions; `gptel-menu' switches per buffer."
                    (and (member default models) default))))
       (setq-default gptel-backend backend
                     gptel-model (intern model))
-      (message "init-ai: default provider %s, model %s" provider model))))
+      (message "init-ai-agent: default provider %s, model %s" provider model))))
 
 (defcustom my/gptel-session-directory
   (expand-file-name "~/org/gptel/")
@@ -316,8 +316,8 @@ Affects new gptel sessions; `gptel-menu' switches per buffer."
   (when (fboundp 'evil-normalize-keymaps)
     (add-hook 'minuet-active-mode-hook #'evil-normalize-keymaps)))
 
-(defconst my/gptel-init-version "3.0-standalone"
+(defconst my/gptel-init-version "3.1-standalone"
   "Config version probe: M-: my/gptel-init-version after restarting Emacs.")
 
-(provide 'init-ai)
-;;; init-ai.el ends here
+(provide 'init-ai-agent)
+;;; init-ai-agent.el ends here

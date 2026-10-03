@@ -9,15 +9,15 @@
 (require 'package)
 (package-initialize)
 (require 'use-package)
-;; init-ai.el installs gptel-preset-collection via the :quelpa keyword.
+;; init-ai-agent.el installs gptel-preset-collection via the :quelpa keyword.
 (require 'quelpa-use-package nil t)
 
-(require 'init-ai)
+(require 'init-ai-agent)
 (require 'minuet nil t)
 
 (setq gptel-confirm-tool-calls nil)
 
-(load (expand-file-name "test-init-ai.el"
+(load (expand-file-name "test-init-ai-agent.el"
                         (file-name-directory (or load-file-name
                                                  default-directory)))
       nil t)

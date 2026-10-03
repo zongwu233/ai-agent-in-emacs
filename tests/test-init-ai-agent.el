@@ -1,5 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
-;; ERT tests for init-ai.el (standalone multi-provider gptel module).
+;; ERT tests for init-ai-agent.el (standalone multi-provider gptel module).
 ;; Runner: emacs --batch -Q -L . -l tests/run.el
 (require 'ert)
 (require 'gptel)
@@ -183,4 +183,4 @@
     (should-not (plist-get minuet-openai-compatible-options :thinking))))
 
 (ert-deftest ai/version-probe ()
-  (should (equal my/gptel-init-version "3.0-standalone")))
+  (should (equal my/gptel-init-version "3.1-standalone")))
